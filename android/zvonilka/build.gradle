@@ -1,0 +1,44 @@
+apply plugin: 'com.android.application'
+
+android {
+	namespace "com.github.stsaz.zvonilka"
+	compileSdk 33
+	buildToolsVersion '33.0.0'
+	defaultConfig {
+		applicationId "com.github.stsaz.zvonilka"
+		minSdkVersion 21
+		targetSdk 33
+		versionCode 00001
+		versionName '0-beta1'
+	}
+
+	buildFeatures {
+		viewBinding true
+	}
+
+	sourceSets.main {
+		jni.srcDirs = []
+		jniLibs.srcDir 'libs'
+	}
+
+	buildTypes {
+		debug {
+			applicationIdSuffix ".debug"
+			minifyEnabled false
+		}
+		release {
+			shrinkResources true
+			minifyEnabled true
+			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+		}
+	}
+}
+
+dependencies {
+	implementation fileTree(dir: 'libs', include: ['*.jar'])
+	implementation 'androidx.appcompat:appcompat:1.5.1'
+	implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+	implementation 'androidx.core:core:1.9.0'
+	implementation 'androidx.media:media:1.6.0'
+	implementation 'com.google.android.material:material:1.6.1'
+}

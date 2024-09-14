@@ -1,0 +1,6 @@
+<resources>
+	<string name="app_name">zvonilka</string>
+
+	<string name="menu_settings">Settings</string>
+	<string name="menu_about">About</string>
+</resources>

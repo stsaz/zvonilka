@@ -1,0 +1,2 @@
+include ':zvonilka'
+rootProject.name='zvonilka'

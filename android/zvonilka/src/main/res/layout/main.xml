@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
+
+	<com.google.android.material.appbar.AppBarLayout
+		android:id="@+id/appbar"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent">
+
+		<androidx.appcompat.widget.Toolbar
+			android:id="@+id/toolbar"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:background="?attr/colorPrimary"
+			android:minHeight="?attr/actionBarSize"
+			android:theme="?attr/actionBarTheme" />
+
+	</com.google.android.material.appbar.AppBarLayout>
+
+	<Button
+		android:id="@+id/b_listen"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="Listen" />
+
+	<TextView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginHorizontal="@dimen/sett_margin"
+		android:text="Target IP:"
+		android:textColor="@color/text" />
+	<EditText
+		android:id="@+id/e_target"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginHorizontal="@dimen/sett_margin"
+		android:autofillHints=""
+		android:hint=""
+		android:inputType="text"
+		android:textSize="@dimen/text_editbox" />
+
+	<Button
+		android:id="@+id/b_call"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="Call" />
+
+	<TextView
+		android:id="@+id/l_status"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:padding="5dp"
+		android:textSize="@dimen/text_label" />
+
+	<Button
+		android:id="@+id/b_disconnect"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="Disconnect" />
+
+</LinearLayout>
