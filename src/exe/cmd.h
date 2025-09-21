@@ -37,8 +37,8 @@ Global options:\n\
   `-Debug`        Print debug log messages\n\
 \n\
 Commands:\n\
-  `call`     Call\n\
-  `listen`   Listen for incoming calls\n\
+  `connect`  Connect to a relay server\n\
+  `relay`    Relay calls between peers\n\
 \n\
 'zvonilka COMMAND -help' will print information on a particular command.\n\
 ");
@@ -64,9 +64,12 @@ static struct zvon_conn_conf conn_init()
 		.port = x->port,
 
 		.audio_module = x->audio_module,
+		.mic_dev_index = x->mic_dev_index,
+		.play_dev_index = x->play_dev_index,
 		.buffer_length_msec = x->buffer_length_msec,
 		.bitrate_kbps = x->bitrate_kbps,
 		.bandwidth_khz = x->bandwidth_khz,
+		.gain_db = x->mic_gain_db,
 
 		.controller = &exe_ctl,
 		.opaque = NULL,
@@ -74,8 +77,8 @@ static struct zvon_conn_conf conn_init()
 	return conf;
 }
 
-#include <exe/call.h>
-#include <exe/listen.h>
+#include <exe/connect.h>
+#include <exe/relay.h>
 
 #define O(m)  (void*)FF_OFF(struct exe, m)
 static const struct ffarg cmd_root[] = {
@@ -83,8 +86,8 @@ static const struct ffarg cmd_root[] = {
 
 	{ "-help",		0,			root_help },
 
-	{ "call",		'>',		cmd_call },
-	{ "listen",		'>',		cmd_listen },
+	{ "connect",	'>',		cmd_connect },
+	{ "relay",		'>',		cmd_listen },
 	{ "",			0,			usage },
 };
 #undef O

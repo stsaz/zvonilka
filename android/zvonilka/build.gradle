@@ -8,8 +8,8 @@ android {
 		applicationId "com.github.stsaz.zvonilka"
 		minSdkVersion 21
 		targetSdk 33
-		versionCode 00001
-		versionName '0-beta1'
+		versionCode 00002
+		versionName '0-beta2'
 	}
 
 	buildFeatures {

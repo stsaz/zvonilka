@@ -45,6 +45,7 @@ static int trk_rec(zvon_call *c, phi_track **trk)
 				.rate = 48000,
 				.channels = 1,
 			},
+			.device_index = cc->mic_dev_index,
 			.buf_time = cc->buffer_length_msec,
 		},
 		.afilter.gain_db = cc->gain_db,

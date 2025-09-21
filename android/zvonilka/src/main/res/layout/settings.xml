@@ -18,6 +18,22 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginHorizontal="@dimen/sett_margin"
+			android:text="Relay IP:"
+			android:textColor="@color/text" />
+		<EditText
+			android:id="@+id/e_relay"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginHorizontal="@dimen/sett_margin"
+			android:autofillHints=""
+			android:hint=""
+			android:inputType="text"
+			android:textSize="@dimen/text_editbox" />
+
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginHorizontal="@dimen/sett_margin"
 			android:text="TCP Port:"
 			android:textColor="@color/text" />
 		<EditText
@@ -25,7 +41,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginHorizontal="@dimen/sett_margin"
-			android:inputType="text"
+			android:inputType="number"
 			android:textSize="@dimen/text_editbox" />
 
 		<TextView
@@ -45,7 +61,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginHorizontal="@dimen/sett_margin"
-			android:inputType="text"
+			android:inputType="number"
 			android:textSize="@dimen/text_editbox" />
 
 		<TextView
@@ -59,7 +75,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginHorizontal="@dimen/sett_margin"
-			android:inputType="text"
+			android:inputType="number"
 			android:textSize="@dimen/text_editbox" />
 
 		<TextView
@@ -73,7 +89,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginHorizontal="@dimen/sett_margin"
-			android:inputType="text"
+			android:inputType="number"
 			android:textSize="@dimen/text_editbox" />
 
 	</LinearLayout>

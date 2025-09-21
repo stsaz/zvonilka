@@ -22,12 +22,14 @@ static int trk_play(zvon_call *c, phi_track **trk)
 {
 	const struct zvon_conn_conf *cc = &c->conn->conf;
 	struct phi_track_conf conf = {
+		// .ifile.format = AVPKF_OGG,
 		.oaudio = {
 			.format = {
 				.format = PHI_PCM_FLOAT32,
 				.rate = 48000,
 				.channels = 1,
 			},
+			.device_index = cc->play_dev_index,
 			.buf_time = cc->buffer_length_msec,
 		},
 	};
@@ -46,8 +48,7 @@ static int trk_play(zvon_call *c, phi_track **trk)
 	if (!track->filter(t, core->mod("format.ogg"), 0)
 		// || !track->filter(t, core->mod("afilter.gain"), 0)
 		|| !track->filter(t, core->mod("afilter.auto-conv"), 0)
-		|| !track->filter(t, core->mod(amod = ffsz_allocfmt("%s.play", cc->audio_module)), 0)
-		) {
+		|| !track->filter(t, core->mod(amod = ffsz_allocfmt("%s.play", cc->audio_module)), 0)) {
 		track->close(t);
 		return -1;
 	}

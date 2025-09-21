@@ -2,6 +2,7 @@
 2024, Simon Zolin */
 
 #include <phiola.h>
+#include <core/meta.h>
 #ifdef FF_WIN
 #include <util/woeh.h>
 #endif
@@ -89,6 +90,7 @@ static void core_sig(uint signal)
 
 extern const struct zvon_call_if zvon_call_iface;
 extern const struct zvon_conn_if zvon_conn_iface;
+extern const struct zvon_relay_if zvon_relay_iface;
 #ifdef FF_WIN
 extern const phi_filter
 	phi_winsleep
@@ -100,6 +102,7 @@ static const void* core_iface(const char *name)
 	static const struct map_sz_vptr map[] = {
 		{ "call",	&zvon_call_iface },
 		{ "conn",	&zvon_conn_iface },
+		{ "relay",	&zvon_relay_iface },
 #ifdef FF_WIN
 		{ "win-sleep",	&phi_winsleep },
 #endif
@@ -516,9 +519,11 @@ FF_EXPORT void phi_core_run()
 }
 
 extern phi_track_if phi_track_iface;
+extern const phi_meta_if phi_metaif;
 static phi_core _core = {
 	.version_str = ZVON_VER_STR,
 	.track = &phi_track_iface,
+	.metaif = &phi_metaif,
 	.time = core_time,
 	.sig = core_sig,
 	.mod = core_mod,

@@ -1,6 +1,6 @@
 # zvonilka (beta)
 
-Free, fast, minimalistic peer-to-peer voice chat app for Windows, Linux & Android.
+Free, fast, minimalistic voice chat app for Windows, Linux & Android.
 Based on [phiola](https://github.com/stsaz/phiola).
 The current functionality is **very limited**, it requires ideal conditions (i.e. no hardware/network delays) and works best with headphones (as there is no echo cancellation).
 
@@ -12,32 +12,41 @@ Contents:
 
 ## Usage Example
 
-To establish a call between two devices, the first one (server) must listen for incoming calls, and the second one (client) must connect to it directly by server's IP address.
+To establish a call between two devices:
+1. Start relay server.
+2. The first device (callee) connects to the server and starts accepting incoming calls.
+3. The second device (caller) connects to the server and initiates the call.
 
 ### Linux
 
 > Note: although PulseAudio is used by default, know that ALSA module provides much lower latency.
 
-Server:
+Relay server:
 
 ```
-$ zvonilka listen -audio alsa
+$ zvonilka relay
 Listening...
-Incoming call from 192.168.1.2
+```
+
+Callee:
+
+```
+$ zvonilka connect RelayServerIP CalleeName  -audio alsa
+Incoming call
 Speak
 ```
 
-Client:
+Caller:
 
 ```
-$ zvonilka call -audio alsa 192.168.1.1
+$ zvonilka connect RelayServerIP CallerName  -call CalleeName  -audio alsa
 Calling...
 Speak
 ```
 
 ### Android
 
-On Android either tap on `Listen` button for server mode, or type in the target IP address and tap on `Call` button for client mode.
+On Android either tap on `Listen` button to wait for an incoming call, or tap on `Call` button to initiate the call.
 Tap `Disconnect` to interrupt the call.
 
 
@@ -55,19 +64,25 @@ git clone https://github.com/stsaz/avpack
 git clone https://github.com/stsaz/ffaudio
 git clone https://github.com/stsaz/ffsys
 git clone https://github.com/stsaz/ffbase
+
+cd phiola
+git checkout -b zvonilka
+git am ../zvonilka/phiola.patch
+cd ..
+
 cd zvonilka
 ```
 
 * Cross-build for Linux/AMD64:
 
 	```sh
-	bash xbuild-debianbullseye.sh
+	bash xbuild.sh release
 	```
 
 * Cross-build for Windows/AMD64:
 
 	```sh
-	bash xbuild-win64.sh
+	bash xbuild-win64.sh release
 	```
 
 * Cross-build for Android/ARM64:
@@ -80,7 +95,10 @@ cd zvonilka
 	ANDROID_NDK_VER=25.1.8937393 \
 	GRADLE_DIR=/home/USER/.gradle \
 	CPU=arm64 \
-	bash xbuild-android.sh
+	bash xbuild-android.sh release \
+		APK_VER=... \
+		APK_KEY_STORE=/Android/key.jks \
+		APK_KEY_PASS=...
 	```
 
 ### Build Parameters

@@ -18,7 +18,9 @@ class Settings {
 	int a_quality;
 	int a_gain = -1;
 
-	String target = "192.168.1.1";
+	String relay = "192.168.1.1";
+	String name = "Callee";
+	String target = "Callee";
 
 	void normalize() {
 		if (!(tcp_port >= 1 && tcp_port < 0xffff))

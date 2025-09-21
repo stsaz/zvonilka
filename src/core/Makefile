@@ -18,6 +18,7 @@ NETMILL := $(ROOT_DIR)/netmill
 LINKFLAGS_CORE := $(LINKFLAGS)
 CORE_O := \
 	core.o \
+	relay.o \
 	call.o \
 	tcp-listener.o \
 	track.o

@@ -30,8 +30,6 @@ class Zvonilka {
 		void close(int flags, String msg);
 		void process(int flags);
 	}
-	native void listen(Settings settings, Ctl ctl);
-	native int call(Settings settings, Ctl ctl, String target);
-
-	native String[] listIPAddresses();
+	native void listen(Settings settings, Ctl ctl, String relay_ip, String name);
+	native int call(Settings settings, Ctl ctl, String relay_ip, String name, String target);
 }

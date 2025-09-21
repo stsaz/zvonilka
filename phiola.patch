@@ -1,0 +1,271 @@
+From 1f24d2e6d04d781dd7d53306b1a592d8b9f2f90f Mon Sep 17 00:00:00 2001
+From: Simon Zolin <4729655+stsaz@users.noreply.github.com>
+Date: Thu, 19 Sep 2024 07:56:53 +0300
+Subject: [PATCH] patch phiola for zvonilka
+
+---
+ src/adev/Makefile    |   2 +-
+ src/afilter/Makefile |   4 +-
+ src/core/meta.h      |   6 +-
+ src/format/reader.h  | 137 ++++++++++++++++++++++---------------------
+ 4 files changed, 77 insertions(+), 72 deletions(-)
+
+diff --git a/src/adev/Makefile b/src/adev/Makefile
+index 683cf54..e97130d 100644
+--- a/src/adev/Makefile
++++ b/src/adev/Makefile
+@@ -28,7 +28,7 @@ ifneq "$(A_API)" "21"
+ 	MODS += aaudio.$(SO)
+ endif
+ else ifeq "$(OS)" "linux"
+-	MODS += alsa.$(SO) pulse.$(SO) jack.$(SO)
++	MODS += alsa.$(SO) pulse.$(SO) # jack.$(SO)
+ endif
+ 
+ %.o: $(PHIOLA)/src/adev/%.c
+diff --git a/src/afilter/Makefile b/src/afilter/Makefile
+index 41d98b8..8a6623c 100644
+--- a/src/afilter/Makefile
++++ b/src/afilter/Makefile
+@@ -45,8 +45,8 @@ soxr-conv.o: $(PHIOLA)/src/afilter/soxr-conv.c
+ $(AFPFX)soxr.$(SO): soxr-conv.o
+ 	$(LINK) -shared $+ $(LINKFLAGS) $(LINK_RPATH_ORIGIN) -L$(ALIB3_BIN) -lsoxr-phi -o $@
+ 
+-MODS += $(AFPFX)danorm.$(SO)
+-LIBS3 += $(ALIB3_BIN)/libDynamicAudioNormalizer-phi.$(SO)
++# MODS += $(AFPFX)danorm.$(SO)
++# LIBS3 += $(ALIB3_BIN)/libDynamicAudioNormalizer-phi.$(SO)
+ dynanorm.o: $(PHIOLA)/src/afilter/dynanorm.c
+ 	$(C) $(CFLAGS) -I$(ALIB3) $< -o $@
+ $(AFPFX)danorm.$(SO): dynanorm.o
+diff --git a/src/core/meta.h b/src/core/meta.h
+index eaf651c..15dd2ef 100644
+--- a/src/core/meta.h
++++ b/src/core/meta.h
+@@ -28,7 +28,7 @@ static void meta_destroy(phi_meta *meta)
+ static void meta_set(phi_meta *meta, ffstr name, ffstr val, uint flags)
+ {
+ 	struct _phi_meta *m = *meta;
+-	dbglog("meta: %S = %S", &name, &val);
++	// dbglog("meta: %S = %S", &name, &val);
+ 	if (!name.len) return;
+ 	uint n = 0, cap = 0;
+ 	char *s;
+@@ -58,7 +58,7 @@ static void meta_set(phi_meta *meta, ffstr name, ffstr val, uint flags)
+ 		if (n + 2 > m->cap)
+ 			cap = n + ffmax(2, n / 2);
+ 		if (ff_unlikely(cap > 0xff)) {
+-			errlog("meta tags limit reached");
++			// errlog("meta tags limit reached");
+ 			return;
+ 		}
+ 	}
+@@ -149,7 +149,7 @@ static int meta_find(const phi_meta *meta, ffstr name, ffstr *val, uint flags)
+ 	ffstr n, v;
+ 	while (meta_list(meta, &i, &n, &v, flags)) {
+ 		if (ffstr_ieq2(&n, &name)) {
+-			dbglog("meta requested: %S = %S", &n, &v);
++			// dbglog("meta requested: %S = %S", &n, &v);
+ 			*val = v;
+ 			return 0;
+ 		}
+diff --git a/src/format/reader.h b/src/format/reader.h
+index e55f0ea..3a44509 100644
+--- a/src/format/reader.h
++++ b/src/format/reader.h
+@@ -1,18 +1,18 @@
+ /** phiola: audio frame reader
+ 2025, Simon Zolin */
+ 
+-#include <avpack/aac-read.h>
+-#include <avpack/ape-read.h>
+-#include <avpack/avi-read.h>
+-#include <avpack/caf-read.h>
+-#include <avpack/flac-read.h>
+-#include <avpack/mkv-read.h>
+-#include <avpack/mp3-read.h>
+-#include <avpack/mp4-read.h>
+-#include <avpack/mpc-read.h>
++// #include <avpack/aac-read.h>
++// #include <avpack/ape-read.h>
++// #include <avpack/avi-read.h>
++// #include <avpack/caf-read.h>
++// #include <avpack/flac-read.h>
++// #include <avpack/mkv-read.h>
++// #include <avpack/mp3-read.h>
++// #include <avpack/mp4-read.h>
++// #include <avpack/mpc-read.h>
+ #include <avpack/ogg-codec-read.h>
+-#include <avpack/wav-read.h>
+-#include <avpack/wv-read.h>
++// #include <avpack/wav-read.h>
++// #include <avpack/wv-read.h>
+ 
+ struct fmt_rd {
+ 	phi_track *trk;
+@@ -28,28 +28,33 @@ static void fmtr_log(void *opaque, const char *fmt, va_list va)
+ }
+ 
+ static const struct avpkr_if *const avpk_formats[] = {
+-	&avpk_aac,
+-	&avpk_ape,
+-	&avpk_avi,
+-	&avpk_caf,
+-	&avpk_flac,
+-	&avpk_mkv,
+-	&avpk_mp3,
+-	&avpk_mp4,
+-	&avpk_mpc,
++	// &avpk_aac,
++	// &avpk_ape,
++	// &avpk_avi,
++	// &avpk_caf,
++	// &avpk_flac,
++	// &avpk_mkv,
++	// &avpk_mp3,
++	// &avpk_mp4,
++	// &avpk_mpc,
+ 	&avpk_ogg,
+-	&avpk_wav,
+-	&avpk_wv,
++	// &avpk_wav,
++	// &avpk_wv,
+ };
+ 
++const char* file_ext_str(uint i)
++{
++	return "ogg";
++}
++
+ static void* fmtr_open(phi_track *t)
+ {
+ 	ffstr ext = {};
+-	if (t->conf.ifile.format) {
++	// if (t->conf.ifile.format) {
+ 		ffstr_setz(&ext, file_ext_str(t->conf.ifile.format));
+-	} else {
+-		ffpath_split3_str(FFSTR_Z(t->conf.ifile.name), NULL, NULL, &ext);
+-	}
++	// } else {
++	// 	ffpath_split3_str(FFSTR_Z(t->conf.ifile.name), NULL, NULL, &ext);
++	// }
+ 	if (!ext.len)
+ 		return PHI_OPEN_ERR;
+ 
+@@ -63,12 +68,12 @@ static void* fmtr_open(phi_track *t)
+ 		.opaque = f,
+ 	};
+ 
+-	if (ffstr_eqz(&ext, "aac") && t->conf.stream_copy) {
+-		ffstr fn = FFSTR_INITZ(t->conf.ofile.name), oext;
+-		ffstr_rsplitby(&fn, '.', NULL, &oext);
+-		if (ffstr_ieqz(&oext, "aac")) // .aac -> .aac copy
+-			c.flags |= AVPKR_F_AAC_FRAMES;
+-	}
++	// if (ffstr_eqz(&ext, "aac") && t->conf.stream_copy) {
++	// 	ffstr fn = FFSTR_INITZ(t->conf.ofile.name), oext;
++	// 	ffstr_rsplitby(&fn, '.', NULL, &oext);
++	// 	if (ffstr_ieqz(&oext, "aac")) // .aac -> .aac copy
++	// 		c.flags |= AVPKR_F_AAC_FRAMES;
++	// }
+ 
+ 	if (avpk_open(&f->rd, avpk_reader_find(ext.ptr, avpk_formats, FF_COUNT(avpk_formats)), &c)) {
+ 		errlog(t, "avpk_open");
+@@ -143,27 +148,27 @@ static const char* fmtr_hdr(struct fmt_rd *f, phi_track *t, struct avpk_info *hd
+ 	t->audio.decoder = decoders[i].name;
+ 
+ 	switch (f->rd.ifa.format) {
+-	case AVPKF_MKV:
+-		if (t->conf.stream_copy)
+-			t->data_type = "mkv";
+-		if (hdr->codec == AVPKC_OPUS && t->conf.stream_copy)
+-			t->oaudio.ogg_gen_opus_tag = 1; // .mkv has no Opus Tags packet
+-		break;
+-
+-	case AVPKF_MP3:
+-		if (t->conf.stream_copy)
+-			t->audio.mpeg1_vbr_scale = ((mp3read*)f->rd.ctx)->rd.info.vbr_scale + 1;
+-		break;
++	// case AVPKF_MKV:
++	// 	if (t->conf.stream_copy)
++	// 		t->data_type = "mkv";
++	// 	if (hdr->codec == AVPKC_OPUS && t->conf.stream_copy)
++	// 		t->oaudio.ogg_gen_opus_tag = 1; // .mkv has no Opus Tags packet
++	// 	break;
++
++	// case AVPKF_MP3:
++	// 	if (t->conf.stream_copy)
++	// 		t->audio.mpeg1_vbr_scale = ((mp3read*)f->rd.ctx)->rd.info.vbr_scale + 1;
++	// 	break;
+ 
+ 	case AVPKF_OGG:
+ 		if (t->conf.stream_copy)
+ 			t->data_type = "OGG";
+ 		break;
+ 
+-	case AVPKF_WAV:
+-		if (hdr->sample_bits == 8)
+-			t->audio.format.format = PHI_PCM_U8;
+-		break;
++	// case AVPKF_WAV:
++	// 	if (hdr->sample_bits == 8)
++	// 		t->audio.format.format = PHI_PCM_U8;
++	// 	break;
+ 	}
+ 
+ 	switch (hdr->codec) {
+@@ -244,12 +249,12 @@ static int fmtr_process(struct fmt_rd *f, phi_track *t)
+ 			break;
+ 		}
+ 
+-		case AVPK_META:
+-			FF_ASSERT(res.tag.id < FF_COUNT(ffmmtag_str));
+-			if (res.tag.id != 0)
+-				ffstr_setz(&res.tag.name, ffmmtag_str[res.tag.id]);
+-			core->metaif->set(&t->meta, res.tag.name, res.tag.value, 0);
+-			break;
++		// case AVPK_META:
++		// 	FF_ASSERT(res.tag.id < FF_COUNT(ffmmtag_str));
++		// 	if (res.tag.id != 0)
++		// 		ffstr_setz(&res.tag.name, ffmmtag_str[res.tag.id]);
++		// 	core->metaif->set(&t->meta, res.tag.name, res.tag.value, 0);
++			// break;
+ 
+ 		case AVPK_DATA:
+ 			if (t->conf.info_only
+@@ -292,19 +297,19 @@ static int fmtr_process(struct fmt_rd *f, phi_track *t)
+ 
+ data:
+ 	switch (f->rd.ifa.format) {
+-	case AVPKF_AAC:
+-		if (!((aacread*)f->rd.ctx)->duration && t->audio.total)
+-			((aacread*)f->rd.ctx)->duration = t->audio.total;
+-		break;
+-
+-	case AVPKF_APE:
+-		t->audio.ape_block_samples = res.frame.duration;
+-		t->audio.ape_align4 = aperead_align4((aperead*)f->rd.ctx);
+-		break;
+-
+-	case AVPKF_FLAC:
+-		t->audio.flac_samples = res.frame.duration;
+-		break;
++	// case AVPKF_AAC:
++	// 	if (!((aacread*)f->rd.ctx)->duration && t->audio.total)
++	// 		((aacread*)f->rd.ctx)->duration = t->audio.total;
++	// 	break;
++
++	// case AVPKF_APE:
++	// 	t->audio.ape_block_samples = res.frame.duration;
++	// 	t->audio.ape_align4 = aperead_align4((aperead*)f->rd.ctx);
++	// 	break;
++
++	// case AVPKF_FLAC:
++	// 	t->audio.flac_samples = res.frame.duration;
++	// 	break;
+ 
+ 	case AVPKF_OGG:
+ 		t->oaudio.ogg_granule_pos = ((oggread*)f->rd.ctx)->page_endpos;
+-- 
+2.49.0
+

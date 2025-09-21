@@ -19,6 +19,7 @@ struct zvonilka_jni {
 
 	zvon_conn *conn;
 	struct zvon_conn_conf conf;
+	char *callee;
 
 	jclass Zvonilka_class;
 	jmethodID Zvonilka_lib_load;
@@ -45,6 +46,7 @@ static void core_task(struct core_data *d, void (*func)(struct core_data*))
 
 #include <jni/log.h>
 #include <jni/ctl.h>
+#include <jni/conn.h>
 
 static void conf()
 {
@@ -61,8 +63,8 @@ static char* mod_loading(ffstr name)
 	char* znames[2] = {};
 
 	static const struct map_sz_vptr mod_deps[] = {
-		{ "opus",	"libopus-phi" },
-		{ "soxr",	"libsoxr-phi" },
+		{ "ac-opus",	"libopus-phi" },
+		{ "af-soxr",	"libsoxr-phi" },
 		{}
 	};
 	const char *dep = map_sz_vptr_findstr(mod_deps, FF_COUNT(mod_deps), name);
@@ -149,6 +151,7 @@ Java_com_github_stsaz_zvonilka_Zvonilka_destroy(JNIEnv *env, jobject thiz)
 	phi_core_destroy();
 	jni_global_unref(x->Zvonilka_Ctl_obj);
 
+	ffmem_free(x->callee);
 	ffstr_free(&x->dir_libs);
 	ffmem_free(x);  x = NULL;
 }

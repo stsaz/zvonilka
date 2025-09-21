@@ -12,10 +12,11 @@
 #include <ffbase/args.h>
 
 struct exe {
-	const phi_core*		core;
-	const zvon_conn_if*	cnif;
-	const zvon_call_if*	clif;
-	const phi_track_if*	tkif;
+	const phi_core*			core;
+	const zvon_conn_if*		cnif;
+	const zvon_call_if*		clif;
+	const zvon_relay_if*	rlif;
+	const phi_track_if*		tkif;
 
 	struct zzlog	log;
 	fftime			time_last;
@@ -24,19 +25,26 @@ struct exe {
 	u_char	debug;
 	char*	cmd_line;
 	uint	exit_code;
-	ffstr root_dir;
+	ffstr	root_dir;
+
 	struct ffargs	cmd;
 	const char*		audio_module;
 	uint			buffer_length_msec;
 	uint			bitrate_kbps;
 	uint			bandwidth_khz;
-	u_char			call_ip[16];
+	u_char			relay_ip[16];
+	char*			login;
+	char*			callee;
+	uint			mic_dev_index, play_dev_index;
+	uint			mic_gain_db;
 	uint			port;
+	uint			arg_i;
 
 	phi_task task_stop_all;
 	void (*action)();
 	zvon_conn *conn;
 	zvon_call *call;
+	zvon_relay *rel;
 
 	char*	dump_file_dir;
 	struct	crash_info ci;
@@ -94,8 +102,10 @@ static int core_load()
 
 static void stop_all(void *param)
 {
-	x->clif->sig(x->call, ZVON_CALL_STOP);
-	if (x->cnif->sig(ZVON_CONN_STOP))
+	if (x->clif)
+		x->clif->sig(x->call, ZVON_CALL_STOP);
+	if (!x->cnif
+		|| x->cnif->sig(ZVON_CONN_STOP))
 		x->core->sig(PHI_CORE_STOP);
 }
 
@@ -159,6 +169,9 @@ static int jobs_start()
 
 static void cleanup()
 {
+	if (x->rel)
+		x->rlif->close(x->rel);
+
 	phi_core_destroy();
 #ifdef PHI_DEBUG
 	ffmem_free(x->dump_file_dir);

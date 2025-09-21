@@ -8,20 +8,18 @@ const struct phi_core *core;
 #define warnlog(t, ...)  phi_warnlog(core, NULL, t, __VA_ARGS__)
 #define dbglog(t, ...)  phi_dbglog(core, NULL, t, __VA_ARGS__)
 
-#include <format/meta.h>
+#include <avpack/reader.h>
+#include <format/reader.h>
 
 extern const phi_filter
 	phi_ogg_write,
-	phi_ogg_read,
-	phi_opusmeta_read;
+	fmt_read;
 
 static const void* fmt_mod_iface(const char *name)
 {
 	static const struct map_sz_vptr mods[] = {
-		{ "meta",		&phi_metaif },
-		{ "ogg",		&phi_ogg_read },
+		{ "ogg",		&fmt_read },
 		{ "ogg-write",	&phi_ogg_write },
-		{ "opusmeta",	&phi_opusmeta_read },
 	};
 	return map_sz_vptr_findz2(mods, FF_COUNT(mods), name);
 }

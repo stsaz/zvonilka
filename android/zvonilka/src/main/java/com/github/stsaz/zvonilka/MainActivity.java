@@ -123,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
 
 		setSupportActionBar(b.toolbar);
 
+		b.eName.setText(core.settings.name);
 		b.eTarget.setText(core.settings.target);
 		b.bListen.setOnClickListener((v) -> listen());
 		b.bCall.setOnClickListener((v) -> call());
@@ -137,6 +138,8 @@ public class MainActivity extends AppCompatActivity {
 			call_on_process(0);
 	}
 
+	private void status(String s) { b.lStatus.setText(s); }
+
 	private void listen() {
 		if (core.state != 0)
 			return;
@@ -144,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
 		if (!user_ask_record())
 			return;
 
-		core.zvon.listen(core.settings.zvon(), this.ctl);
+		core.zvon.listen(core.settings.zvon(), this.ctl, core.settings.relay, b.eName.getText().toString());
 		state_set(1);
 	}
 
@@ -156,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
 			return;
 
 		String target = b.eTarget.getText().toString();
-		if (0 != core.zvon.call(core.settings.zvon(), this.ctl, target)) {
+		if (0 != core.zvon.call(core.settings.zvon(), this.ctl, core.settings.relay, b.eName.getText().toString(), target)) {
 			core.errlog(TAG, "Error");
 			return;
 		}
@@ -168,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
 			return;
 
 		core.zvon.disconnect();
-		b.lStatus.setText("");
+		//status("");
 		state_set(0);
 		core.state2 = 0;
 	}
@@ -187,16 +190,9 @@ public class MainActivity extends AppCompatActivity {
 			core.state = i;
 
 			if (i == 1) {
-				StringBuilder s = new StringBuilder();
-				s.append("Listening:\n");
-				String[] ips = core.zvon.listIPAddresses();
-				for (String ip : ips) {
-					s.append(String.format("%s\n", ip));
-				}
-				b.lStatus.setText(s.toString());
-
+				status("Listening...");
 			} else if (i == 2) {
-				b.lStatus.setText("Calling...");
+				status("Calling...");
 			}
 		}
 	}
@@ -204,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
 	private void call_on_open(int flags) {
 		startService(new Intent(this, RecSvc.class));
 		if (0 != (flags & 1))
-			b.lStatus.setText("Incoming call");
+			status("Incoming call");
 	}
 
 	private void call_on_close(int flags, String msg) {
@@ -213,13 +209,18 @@ public class MainActivity extends AppCompatActivity {
 			s = String.format("Error: %s", msg);
 		if (0 != (flags & 2))
 			s = "The call was interrupted";
-		b.lStatus.setText(s);
+		status(s);
 		disconnect();
 		stopService(new Intent(this, RecSvc.class));
 	}
 
 	private void call_on_process(int flags) {
-		b.lStatus.setText("Speak");
+		if (flags == 2) {
+			status("Connected to server");
+			return;
+		}
+
+		status("Speak");
 		core.state2 = 1;
 	}
 }
