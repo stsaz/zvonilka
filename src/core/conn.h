@@ -22,6 +22,8 @@ struct zvon_conn {
 
 	struct zvon_conn_conf conf;
 	char *target_name;
+
+	char *error_msg;
 };
 
 static void conn_connect2(void *param);
@@ -38,16 +40,20 @@ static void conn_close(zvon_conn *c)
 	ffvec_free(&c->buf);
 	ffsock_close(c->cs);
 	ffmem_free(c->target_name);
+	ffmem_free(c->error_msg);
 	ffmem_free(c);
 }
 
 static void conn_err(zvon_conn *c, uint code)
 {
+	ffmem_free(c->error_msg);
+	c->error_msg = ffsz_dup(fferr_strptr(fferr_last()));
+
 	ffsock_close(c->cs);
 	c->cs = FFSOCK_NULL;
 	c->buf.len = 0;
-	c->conf.controller->close(c->conf.opaque, NULL);
-	c->conf.controller->connection(c->conf.opaque, ZVON_CONN_DISCONNECTED);
+	c->conf.controller->connection(c->conf.opaque, c, ZVON_CONN_DISCONNECTED);
+	// c->conf.controller->close(c->conf.opaque, NULL);
 }
 
 #if defined FF_WIN
@@ -94,7 +100,8 @@ static int conn_sig(uint sig)
 
 static int conn_setup(zvon_conn *c)
 {
-	ffsock_setopt(c->cs, IPPROTO_TCP, TCP_NODELAY, 1);
+	if (ffsock_setopt(c->cs, IPPROTO_TCP, TCP_NODELAY, 1))
+		syserrlog("ffsock_setopt");
 	if (core->kq_attach(0, (phi_kevent*)&c->kev, (fffd)c->cs, 0)) {
 		return 1;
 	}
@@ -190,7 +197,7 @@ static void conn_login_req(void *param)
 	zvon_conn *c = param;
 
 	if (!c->buf.len)
-		ffvec_addfmt(&c->buf, "/login?name=%s\r\n", c->conf.name);
+		zlang_login_write(&c->buf, c->conf.name);
 
 	int r = conn_send(c, *(ffstr*)&c->buf, conn_login_req, c);
 	if (r <= 0)
@@ -207,7 +214,7 @@ static void conn_login_resp(void *param)
 		assert(r != -PHI_DONE);
 		return;
 	}
-	c->conf.controller->connection(c->conf.opaque, ZVON_CONN_CONNECTED);
+	c->conf.controller->connection(c->conf.opaque, c, ZVON_CONN_CONNECTED);
 }
 
 static void conn_ready_req(void *param)
@@ -215,7 +222,7 @@ static void conn_ready_req(void *param)
 	zvon_conn *c = param;
 
 	if (!c->buf.len)
-		ffvec_addfmt(&c->buf, "/ready\r\n");
+		zlang_ready_write(&c->buf);
 
 	int r = conn_send(c, *(ffstr*)&c->buf, conn_ready_req, c);
 	if (r <= 0)
@@ -253,7 +260,7 @@ static void conn_call_req(void *param)
 	zvon_conn *c = param;
 
 	if (!c->buf.len)
-		ffvec_addfmt(&c->buf, "/call?name=%s\r\n", c->target_name);
+		zlang_call_write(&c->buf, c->target_name);
 
 	int r = conn_send(c, *(ffstr*)&c->buf, conn_call_req, c);
 	if (r <= 0)
@@ -273,9 +280,19 @@ static void conn_call_resp(void *param)
 	call_run(call_create(c), 0);
 }
 
+static void* conn_get(zvon_conn *c, uint flags)
+{
+	switch (flags) {
+	case ZVON_CNG_ERROR:
+		return (c->error_msg) ? c->error_msg : "";
+	}
+	return NULL;
+}
+
 const struct zvon_conn_if zvon_conn_iface = {
 	conn_sig,
 	conn_connect,
 	conn_close,
 	conn_call,
+	conn_get,
 };

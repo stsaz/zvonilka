@@ -4,17 +4,28 @@
 #include <netmill.h>
 #include <util/ipaddr.h>
 
-static void ctl_connection(void *opaque, uint flags)
+#define CF_CON 2
+#define CF_INCALL 1
+#define CF_ERR 1
+
+static int jni_vm_attach_log(JNIEnv **env)
+{
+	int r = jni_vm_attach(jvm, env);
+	if (r) {
+		errlog("jni_vm_attach: %d", r);
+		return 1;
+	}
+	return 0;
+}
+
+static void ctl_connection(void *opaque, zvon_conn *c, uint flags)
 {
 	if (flags & ZVON_CONN_CONNECTED) {
 
 		JNIEnv *env;
-		int r = jni_vm_attach(jvm, &env);
-		if (r) {
-			errlog("jni_vm_attach: %d", r);
+		if (jni_vm_attach_log(&env))
 			return;
-		}
-		jni_call_void(x->Zvonilka_Ctl_obj, x->Zvonilka_Ctl_process, 2);
+		jni_call_void(x->Zvonilka_Ctl_obj, x->Zvonilka_Ctl_process, CF_CON);
 		jni_vm_detach(jvm);
 
 		if (x->callee)
@@ -23,6 +34,15 @@ static void ctl_connection(void *opaque, uint flags)
 			x->cnif->call(x->conn, NULL);
 		ffmem_free(x->callee);
 		x->callee = NULL;
+
+	} else if (flags & ZVON_CONN_DISCONNECTED) {
+		JNIEnv *env;
+		if (jni_vm_attach_log(&env))
+			return;
+		char *e = x->cnif->get(c, ZVON_CNG_ERROR);
+		jstring jmsg = jni_js_sz(e);
+		jni_call_void(x->Zvonilka_Ctl_obj, x->Zvonilka_Ctl_close, CF_ERR, jmsg);
+		jni_vm_detach(jvm);
 	}
 }
 
@@ -30,14 +50,11 @@ static void ctl_open(void *opaque, zvon_call *c)
 {
 	int flags = 0;
 	if (x->clif->state(c) & ZVON_CLS_INCOMING)
-		flags = 1;
+		flags = CF_INCALL;
 
 	JNIEnv *env;
-	int r = jni_vm_attach(jvm, &env);
-	if (r) {
-		errlog("jni_vm_attach: %d", r);
+	if (jni_vm_attach_log(&env))
 		return;
-	}
 	jni_call_void(x->Zvonilka_Ctl_obj, x->Zvonilka_Ctl_open, flags);
 	jni_vm_detach(jvm);
 }
@@ -55,11 +72,8 @@ static void ctl_close(void *opaque, zvon_call *c)
 	}
 
 	JNIEnv *env;
-	int r = jni_vm_attach(jvm, &env);
-	if (r) {
-		errlog("jni_vm_attach: %d", r);
+	if (jni_vm_attach_log(&env))
 		return;
-	}
 	jstring jmsg = jni_js_sz("");
 	jni_call_void(x->Zvonilka_Ctl_obj, x->Zvonilka_Ctl_close, flags, jmsg);
 	jni_vm_detach(jvm);
@@ -70,11 +84,8 @@ static int ctl_process(void *opaque, zvon_call *c)
 	switch (x->clif->state(c) & 0x0f) {
 	case ZVON_CLS_ESTABLISHED: {
 		JNIEnv *env;
-		int r = jni_vm_attach(jvm, &env);
-		if (r) {
-			errlog("jni_vm_attach: %d", r);
-			return 1;
-		}
+		if (jni_vm_attach_log(&env))
+			return 0;
 		jni_call_void(x->Zvonilka_Ctl_obj, x->Zvonilka_Ctl_process, 1);
 		jni_vm_detach(jvm);
 		break;

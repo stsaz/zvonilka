@@ -20,6 +20,7 @@ do { \
 		core->conf.log(core->conf.log_obj, PHI_LOG_EXTRA, "core", NULL, __VA_ARGS__); \
 } while (0)
 
+#include <core/lang.h>
 #include <core/client.h>
 
 struct zvon_relay {

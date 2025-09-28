@@ -12,7 +12,7 @@ import android.os.Looper;
 import android.util.Log;
 
 class Settings {
-	int tcp_port;
+	int relay_port;
 
 	int a_buffer;
 	int a_quality;
@@ -23,8 +23,8 @@ class Settings {
 	String target = "Callee";
 
 	void normalize() {
-		if (!(tcp_port >= 1 && tcp_port < 0xffff))
-			tcp_port = 21073;
+		if (!(relay_port >= 1 && relay_port < 0xffff))
+			relay_port = 21073;
 		if (!(a_buffer >= 1))
 			a_buffer = 200;
 		if (!(a_quality >= 1))
@@ -35,11 +35,41 @@ class Settings {
 
 	Zvonilka.Settings zvon() {
 		Zvonilka.Settings s = new Zvonilka.Settings();
-		s.tcp_port = tcp_port;
+		s.relay_port = relay_port;
 		s.a_buffer = a_buffer;
 		s.a_quality = a_quality;
 		s.a_gain = a_gain;
 		return s;
+	}
+
+	void load(Conf c) {
+		relay = c.value(Conf.RELAY_IP);
+		relay_port = c.number(Conf.RELAY_PORT);
+		name = c.value(Conf.NAME);
+		target = c.value(Conf.TARGET);
+		a_buffer = c.number(Conf.A_BUFFER);
+		a_quality = c.number(Conf.A_QUALITY);
+		a_gain = c.number(Conf.A_GAIN);
+	}
+
+	String conf_write() {
+		return String.format(
+			"relay_ip %s\n"
+			+ "relay_port %d\n"
+			+ "name %s\n"
+			+ "target %s\n"
+			+ "a_buffer %d\n"
+			+ "a_quality %d\n"
+			+ "a_gain %d\n"
+
+			, relay
+			, relay_port
+			, name
+			, target
+			, a_buffer
+			, a_quality
+			, a_gain
+			);
 	}
 }
 
@@ -49,6 +79,8 @@ class Core extends Util {
 
 	private static final String TAG = "zvonilka.Core";
 
+	private String work_dir;
+	private Conf conf;
 	GUI gui;
 	Zvonilka zvon;
 	Handler tq;
@@ -79,11 +111,17 @@ class Core extends Util {
 	private int init(@NonNull Context ctx) {
 		dbglog(TAG, "init");
 		context = ctx;
+		work_dir = ctx.getFilesDir().getPath();
 
 		zvon = new Zvonilka(ctx.getApplicationInfo().nativeLibraryDir, ctx.getAssets());
 		tq = new Handler(Looper.getMainLooper());
 		gui = new GUI(this);
 		settings = new Settings();
+
+		conf = new Conf();
+		if (conf.confRead(conf_file_name()))
+			settings.load(conf);
+
 		settings.normalize();
 		return 0;
 	}
@@ -99,6 +137,12 @@ class Core extends Util {
 			return;
 		instance = null;
 		zvon.destroy();
+	}
+
+	private String conf_file_name() { return this.work_dir + "/zvonilka-user.conf"; }
+
+	void fin() {
+		conf.confWrite(conf_file_name(), settings.conf_write().getBytes());
 	}
 
 	void errlog(String mod, String fmt, Object... args) {

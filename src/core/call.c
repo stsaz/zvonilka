@@ -4,9 +4,14 @@
 #include <zvonilka.h>
 #include <track.h>
 
+extern phi_core *core;
+#define errlog(...) \
+	core->conf.log(core->conf.log_obj, PHI_LOG_ERR, "core", NULL, __VA_ARGS__)
+
 extern const phi_track_if *track;
 static zvon_call* call_create(zvon_conn *conn);
 static void call_run(zvon_call *c, uint flags);
+#include <core/lang.h>
 #include <core/conn.h>
 
 struct zvon_call {

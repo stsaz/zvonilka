@@ -70,6 +70,7 @@ static struct zvon_conn_conf conn_init()
 		.bitrate_kbps = x->bitrate_kbps,
 		.bandwidth_khz = x->bandwidth_khz,
 		.gain_db = x->mic_gain_db,
+		.noise_gate_db = (x->noise_gate_db) ? x->noise_gate_db : 30,
 
 		.controller = &exe_ctl,
 		.opaque = NULL,

@@ -22,17 +22,17 @@ static void jzvon_disconnect(struct core_data *d)
 	ffmem_free(d);
 }
 
-static void settings_set(JNIEnv *env, jobject jo)
+static void conf_set(struct zvon_conn_conf *cc, JNIEnv *env, jobject jo)
 {
-	struct zvon_conn_conf *cc = &x->conf;
 	cc->controller = &exe_ctl;
 
 	jclass c = jni_class_obj(jo);
-	cc->port = jni_obj_int(jo, jni_field_int(c, "tcp_port"));
+	cc->port = jni_obj_int(jo, jni_field_int(c, "relay_port"));
 
 	cc->buffer_length_msec = jni_obj_int(jo, jni_field_int(c, "a_buffer"));
 	cc->bitrate_kbps = jni_obj_int(jo, jni_field_int(c, "a_quality"));
 	cc->gain_db = jni_obj_int(jo, jni_field_int(c, "a_gain"));
+	cc->noise_gate_db = 0;
 }
 
 JNIEXPORT void JNICALL
@@ -48,7 +48,7 @@ Java_com_github_stsaz_zvonilka_Zvonilka_listen(JNIEnv *env, jobject thiz, jobjec
 	if (1 != ffip_port_split(FFSTR_Z(relay_ip), x->conf.ip, &port))
 		goto end;
 
-	settings_set(env, settings);
+	conf_set(&x->conf, env, settings);
 	ctl_set(env, ctl);
 
 	struct core_data *d = ffmem_new(struct core_data);
@@ -78,7 +78,7 @@ Java_com_github_stsaz_zvonilka_Zvonilka_call(JNIEnv *env, jobject thiz, jobject 
 	if (1 != ffip_port_split(FFSTR_Z(relay_ip), x->conf.ip, &port))
 		goto end;
 
-	settings_set(env, settings);
+	conf_set(&x->conf, env, settings);
 	ctl_set(env, ctl);
 
 	struct core_data *d = ffmem_new(struct core_data);

@@ -14,7 +14,7 @@ static const struct zvon_relay_ctl exe_relay_ctl = {
 };
 
 
-static void ctl_connection(void *opaque, uint flags)
+static void ctl_connection(void *opaque, zvon_conn *c, uint flags)
 {
 	if (flags & ZVON_CONN_CONNECTED) {
 		userlog("Connected to server");

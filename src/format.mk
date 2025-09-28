@@ -6,7 +6,7 @@ MODS += format.$(SO)
 	$(C) $(CFLAGS_BASE) -DFFBASE_OPT_SIZE -I$(PHIOLA)/src -I$(AVPACK) -I$(FFSYS) $< -o $@
 
 fmt.o: $(ZVONILKA)/src/fmt.c
-	$(C) $(CFLAGS_BASE) -DFFBASE_OPT_SIZE -I$(PHIOLA)/src -I$(AVPACK) -I$(FFSYS) $< -o $@
+	$(C) $(CFLAGS_BASE) -DFFBASE_OPT_SIZE -I$(PHIOLA)/src -I$(ZVONILKA)/src -I$(AVPACK) -I$(FFSYS) $< -o $@
 
 format.$(SO): fmt.o \
 		ogg.o \

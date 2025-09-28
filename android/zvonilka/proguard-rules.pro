@@ -1,3 +1,4 @@
 -keep class com.github.stsaz.zvonilka.Zvonilka {*;}
 -keep class com.github.stsaz.zvonilka.Zvonilka$Settings {*;}
 -keep interface com.github.stsaz.zvonilka.Zvonilka$Ctl {*;}
+-keep class com.github.stsaz.zvonilka.Conf {*;}

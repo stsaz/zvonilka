@@ -2,7 +2,18 @@
 
 Free, fast, minimalistic voice chat app for Windows, Linux & Android.
 Based on [phiola](https://github.com/stsaz/phiola).
-The current functionality is **very limited**, it requires ideal conditions (i.e. no hardware/network delays) and works best with headphones (as there is no echo cancellation).
+
+Features & Limitations:
+
+* Establish a call between two devices via Relay server; plain TCP connection, no authentication
+* Opus audio compression, bitrate and bandwidth can be configured
+* CLI for desktop OS, GUI for Android
+* Audio:
+	* Choose buffer length; apply signal gain
+	* Desktop: choose recording/playback device; noise suppressing filter
+	* Linux: choose between PulseAudio and ALSA
+	* Works best with headphones (no echo cancellation)
+* Requires ideal conditions (no hardware/network delays)
 
 Contents:
 

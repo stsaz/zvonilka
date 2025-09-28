@@ -43,8 +43,7 @@ public class SettingsActivity extends AppCompatActivity {
 
 	private void load() {
 		// Connection
-		b.eRelay.setText(core.settings.relay);
-		b.ePort.setText(Util.int_to_str(core.settings.tcp_port));
+		b.ePort.setText(Util.int_to_str(core.settings.relay_port));
 
 		// Audio
 		b.eBuffer.setText(Util.int_to_str(core.settings.a_buffer));
@@ -54,8 +53,7 @@ public class SettingsActivity extends AppCompatActivity {
 
 	private void save() {
 		// Connection
-		core.settings.relay = b.eRelay.getText().toString();
-		core.settings.tcp_port = Util.str_to_uint(b.ePort.getText().toString(), -1);
+		core.settings.relay_port = Util.str_to_uint(b.ePort.getText().toString(), -1);
 
 		// Audio
 		core.settings.a_buffer = Util.str_to_uint(b.eBuffer.getText().toString(), -1);

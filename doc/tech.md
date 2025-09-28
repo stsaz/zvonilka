@@ -37,7 +37,7 @@ CALLER                    RELAY                       CALLEE
 ### phiola track chain during the call
 
 ```
-adev.rec -> af.gain -> af.aconv -> af.soxr -> ac-opus.enc -> fmt.ogg.w -> zvon.send  [Peer#1 Recording Track]
+adev.rec -> af.noise-gate -> af.gain -> af.aconv -> af.soxr -> ac-opus.enc -> fmt.ogg.w -> zvon.send  [Peer#1 Recording Track]
 ->(network)->
-zvon.recv -> fmt.ogg.r -> ac-opus.dec -> af.soxr -> af.aconv -> adev.play            [Peer#2 Playback Track]
+zvon.recv -> ogg.r -> ac-opus.dec -> af.soxr -> af.aconv -> adev.play                                 [Peer#2 Playback Track]
 ```

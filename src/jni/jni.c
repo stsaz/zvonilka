@@ -47,6 +47,7 @@ static void core_task(struct core_data *d, void (*func)(struct core_data*))
 #include <jni/log.h>
 #include <jni/ctl.h>
 #include <jni/conn.h>
+#include <jni/conf.h>
 
 static void conf()
 {

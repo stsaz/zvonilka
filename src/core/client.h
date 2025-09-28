@@ -61,33 +61,25 @@ static inline void ffring_write_finish_n(ffring *b, ffring_head wh, ffsize n)
 static void cl_login(zvon_relay_client *c, ffstr d)
 {
 	ffstr name;
-	int r = ffstr_matchfmt(&d, "/login?name=%S\r\n", &name);
+	int r = zlang_login_read(d, &name);
 	if (r < 0) {
-		errlog("invalid command");
 		rel_cl_err(c);
 		return;
-	}
-	if (r > 0) {
-		r--;
 	}
 	ffring_read_finish_n(c->buf, c->ring_head2, r);
 	ffsz_copystr(c->name, sizeof(c->name), &name);
 	rel_sig(c->r, ZVON_REL_NEW_CLIENT);
 
-	ffstr_setz(&c->wdata, "200\r\n");
+	zlang_ok_write(&c->wdata);
 	cl_respond(c);
 }
 
 static void cl_ready(zvon_relay_client *c, ffstr d)
 {
-	int r = ffstr_matchfmt(&d, "/ready\r\n");
+	int r = zlang_ready_read(d);
 	if (r < 0) {
-		errlog("invalid command");
 		rel_cl_err(c);
 		return;
-	}
-	if (r > 0) {
-		r--;
 	}
 	ffring_read_finish_n(c->buf, c->ring_head2, r);
 
@@ -97,14 +89,10 @@ static void cl_ready(zvon_relay_client *c, ffstr d)
 static void cl_call(zvon_relay_client *c, ffstr d)
 {
 	ffstr name;
-	int r = ffstr_matchfmt(&d, "/call?name=%S\r\n", &name);
+	int r = zlang_call_read(d, &name);
 	if (r < 0) {
-		errlog("invalid command");
 		rel_cl_err(c);
 		return;
-	}
-	if (r > 0) {
-		r--;
 	}
 	ffring_read_finish_n(c->buf, c->ring_head2, r);
 	c->peer = rel_find_cl(c->r, name);
@@ -116,10 +104,10 @@ static void cl_call(zvon_relay_client *c, ffstr d)
 	c->peer->peer = c;
 	rel_sig(c->r, ZVON_REL_NEW_CALL);
 
-	ffstr_setz(&c->peer->wdata, "200\r\n");
+	zlang_ok_write(&c->peer->wdata);
 	cl_respond(c->peer);
 
-	ffstr_setz(&c->wdata, "200\r\n");
+	zlang_ok_write(&c->wdata);
 	cl_respond(c);
 }
 
@@ -189,10 +177,10 @@ static void rel_cl_recv(void *param)
 	if (!c->peer) {
 		c->ring_head2 = ffring_read_begin(c->buf, c->buf->cap, &d, NULL);
 		dbglog("command: '%S'", &d);
-		if (ffstr_matchz(&d, "/call"))
-			cl_call(c, d);
-		else
+		if (zlang_ready_read(d) >= 0)
 			cl_ready(c, d);
+		else
+			cl_call(c, d);
 		return;
 	}
 

@@ -8,17 +8,15 @@ const struct phi_core *core;
 #define warnlog(t, ...)  phi_warnlog(core, NULL, t, __VA_ARGS__)
 #define dbglog(t, ...)  phi_dbglog(core, NULL, t, __VA_ARGS__)
 
-#include <avpack/reader.h>
-#include <format/reader.h>
+#include <ogg-read.h>
 
 extern const phi_filter
-	phi_ogg_write,
-	fmt_read;
+	phi_ogg_write;
 
 static const void* fmt_mod_iface(const char *name)
 {
 	static const struct map_sz_vptr mods[] = {
-		{ "ogg",		&fmt_read },
+		{ "ogg",		&ogg_read },
 		{ "ogg-write",	&phi_ogg_write },
 	};
 	return map_sz_vptr_findz2(mods, FF_COUNT(mods), name);

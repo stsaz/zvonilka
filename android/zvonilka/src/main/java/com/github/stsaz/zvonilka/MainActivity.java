@@ -66,8 +66,11 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	protected void onStop() {
-		if (core != null)
+		if (core != null) {
 			core.dbglog(TAG, "onStop()");
+			core.settings.relay = b.eRelay.getText().toString();
+			core.fin();
+		}
 		super.onStop();
 	}
 
@@ -133,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private void ui_show() {
+		b.eRelay.setText(core.settings.relay);
 		state_set(core.state);
 		if (core.state2 != 0)
 			call_on_process(0);
@@ -199,15 +203,15 @@ public class MainActivity extends AppCompatActivity {
 
 	private void call_on_open(int flags) {
 		startService(new Intent(this, RecSvc.class));
-		if (0 != (flags & 1))
+		if (0 != (flags & Zvonilka.CF_INCALL))
 			status("Incoming call");
 	}
 
 	private void call_on_close(int flags, String msg) {
 		String s = "The call is finished";
-		if (0 != (flags & 1))
+		if (0 != (flags & Zvonilka.CF_ERR))
 			s = String.format("Error: %s", msg);
-		if (0 != (flags & 2))
+		if (0 != (flags & Zvonilka.CF_INTR))
 			s = "The call was interrupted";
 		status(s);
 		disconnect();
@@ -215,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private void call_on_process(int flags) {
-		if (flags == 2) {
+		if (flags == Zvonilka.CF_CON) {
 			status("Connected to server");
 			return;
 		}

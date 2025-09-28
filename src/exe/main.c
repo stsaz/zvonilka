@@ -37,6 +37,7 @@ struct exe {
 	char*			callee;
 	uint			mic_dev_index, play_dev_index;
 	uint			mic_gain_db;
+	uint			noise_gate_db;
 	uint			port;
 	uint			arg_i;
 

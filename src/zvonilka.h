@@ -5,6 +5,7 @@
 
 #define ZVON_CORE_VER  2
 
+typedef struct zvon_conn zvon_conn;
 typedef struct zvon_call zvon_call;
 
 
@@ -46,7 +47,7 @@ enum {
 /** Controller */
 typedef struct zvon_ctl zvon_ctl;
 struct zvon_ctl {
-	void (*connection)(void *obj, uint flags);
+	void (*connection)(void *opaque, zvon_conn *c, uint flags);
 
 	/** Called when a new call is established */
 	void (*open)(void *obj, zvon_call *c);
@@ -69,6 +70,7 @@ struct zvon_conn_conf {
 	uint		bitrate_kbps;
 	uint		bandwidth_khz;
 	uint		gain_db;
+	uint		noise_gate_db;
 
 	const zvon_ctl*	controller;
 	void*			opaque;
@@ -78,7 +80,10 @@ enum ZVON_CONN {
 	ZVON_CONN_STOP = 1,
 };
 
-typedef struct zvon_conn zvon_conn;
+enum ZVON_CNG {
+	ZVON_CNG_ERROR = 1, // char*
+};
+
 typedef struct zvon_conn_if zvon_conn_if;
 /** Connection interface */
 struct zvon_conn_if {
@@ -88,6 +93,10 @@ struct zvon_conn_if {
 	zvon_conn* (*connect)(struct zvon_conn_conf *conf);
 	void (*close)(zvon_conn *c);
 	void (*call)(zvon_conn *c, const char *target);
+
+	/**
+	flags: enum ZVON_CNG */
+	void* (*get)(zvon_conn *c, uint flags);
 };
 
 

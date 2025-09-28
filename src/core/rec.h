@@ -48,7 +48,10 @@ static int trk_rec(zvon_call *c, phi_track **trk)
 			.device_index = cc->mic_dev_index,
 			.buf_time = cc->buffer_length_msec,
 		},
-		.afilter.gain_db = cc->gain_db,
+		.afilter = {
+			.gain_db = cc->gain_db,
+			.noise_gate = (cc->noise_gate_db) ? ffsz_allocfmt("threshold %u", cc->noise_gate_db) : NULL,
+		},
 		.opus = {
 			.bitrate = cc->bitrate_kbps,
 			.mode = 1,
@@ -62,6 +65,8 @@ static int trk_rec(zvon_call *c, phi_track **trk)
 	char *amod = NULL;
 	if (!track->filter(t, &rec_guard, 0)
 		|| !track->filter(t, core->mod(amod = ffsz_allocfmt("%s.rec", cc->audio_module)), 0)
+		|| (cc->noise_gate_db
+			&& !track->filter(t, core->mod("afilter.noise-gate"), 0))
 		|| !track->filter(t, core->mod("afilter.gain"), 0)
 		|| !track->filter(t, core->mod("afilter.auto-conv"), 0)
 		|| !track->filter(t, core->mod("format.ogg-write"), 0)

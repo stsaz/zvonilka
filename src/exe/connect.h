@@ -20,6 +20,7 @@ Options:\n\
   `-play` NUM             Playback device index\n\
   `-buffer` MSEC          Audio buffer length (default: 200)\n\
   `-gain` dB              Microphone signal gain\n\
+  `-noise_gate` dB        Noise gate threshold (default: 30)\n\
 \n\
   `-bandwidth` KHZ        Opus bandwidth (4, 6, 8, 12 or 20)\n\
   `-quality` KBPS         Opus encoding bitrate (default: 32)\n\
@@ -70,6 +71,7 @@ static const struct ffarg cmd_connect[] = {
 	{ "-gain",			'u',	O(mic_gain_db) },
 	{ "-help",			0,		connect_help },
 	{ "-mic",			'u',	O(mic_dev_index) },
+	{ "-noise_gate",	'u',	O(noise_gate_db) },
 	{ "-play",			'u',	O(play_dev_index) },
 	{ "-port",			'u',	O(port) },
 	{ "-quality",		'u',	O(bitrate_kbps) },
